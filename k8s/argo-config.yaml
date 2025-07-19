@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+data:
+  admin.enabled: "true"
+  server.rbac.log.enforce.enable: "false"
+  statusbadge.enabled: "false"
+  ui.cssurl: https://cdn.jsdelivr.net/gh/code-crusher/argocd-gravity-theme@main/argo-theme.css
+  url: https://argo.localhost/

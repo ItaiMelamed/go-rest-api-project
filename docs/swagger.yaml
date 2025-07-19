@@ -1,0 +1,186 @@
+basePath: /api/v1
+definitions:
+  models.Task:
+    properties:
+      assignee_id:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      status:
+        $ref: '#/definitions/models.taskStatus'
+      title:
+        type: string
+    type: object
+  models.TaskCreate:
+    properties:
+      assignee_id:
+        type: integer
+      description:
+        maxLength: 255
+        minLength: 3
+        type: string
+      status:
+        $ref: '#/definitions/models.taskStatus'
+      title:
+        maxLength: 30
+        minLength: 3
+        type: string
+    required:
+    - description
+    - title
+    type: object
+  models.User:
+    properties:
+      full_name:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+  models.UserCreate:
+    properties:
+      full_name:
+        maxLength: 30
+        minLength: 3
+        type: string
+      username:
+        maxLength: 15
+        minLength: 3
+        type: string
+    required:
+    - full_name
+    - username
+    type: object
+  models.taskStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - ToDo
+    - InProgress
+    - Done
+host: localhost:8080
+info:
+  contact:
+    name: Itai Melamed
+    url: https://github.com/ItaiMelamed
+  description: description
+  version: "1"
+paths:
+  /tasks:
+    get:
+      description: Get Tasks
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+      summary: Get Tasks
+      tags:
+      - Tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task
+      parameters:
+      - description: Task object
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.TaskCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+      summary: Create Task
+      tags:
+      - Tasks
+  /tasks/{id}:
+    get:
+      description: Get task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      summary: Get Tasks
+      tags:
+      - Tasks
+  /users:
+    get:
+      description: Get users
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Get Users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+      summary: Create User
+      tags:
+      - Users
+  /users/{id}:
+    get:
+      description: Get user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      summary: Get Users
+      tags:
+      - Users
+securityDefinitions:
+  bearerToken:
+    in: header
+    name: No Need
+    type: apiKey
+swagger: "2.0"
