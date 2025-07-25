@@ -1,19 +1,25 @@
+
+# ServiceAccount in argo namespace
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: argo-deployer
-  namespace: app
+  namespace: argo
 ---
+# ClusterRole for cross-namespace permissions
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
-  name: argo-deployer-role
-  namespace: app
+  name: argo-deployer-clusterrole
 rules:
   - apiGroups: ["", "apps", "extensions"]
     resources: ["deployments", "services", "pods"]
     verbs: ["get", "list", "create", "update", "patch", "delete"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "create", "update", "patch", "delete"]
 ---
+# RoleBinding in app namespace binding argo ServiceAccount to ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -22,7 +28,8 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: argo-deployer
+    namespace: argo
 roleRef:
-  kind: Role
-  name: argo-deployer-role
+  kind: ClusterRole
+  name: argo-deployer-clusterrole
   apiGroup: rbac.authorization.k8s.io
