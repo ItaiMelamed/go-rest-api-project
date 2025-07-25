@@ -104,7 +104,7 @@ func getTasks(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, models.Tasks)
 }
 
-// @Summary Get Tasks
+// @Summary Get Task
 // @Schemes
 // @Description Get task
 // @Tags Tasks
@@ -166,14 +166,11 @@ func setupRouter() *gin.Engine {
 
 // @version 1
 // @Description description
-
 // @contact.name Itai Melamed
 // @contact.url https://github.com/ItaiMelamed
-
 // @securityDefinitions.apikey bearerToken
 // @in header
 // @name No Need
-
 // @host localhost:8080
 // @BasePath /api/v1
 func main() {

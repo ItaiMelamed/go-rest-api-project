@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: docker-build
+spec:
+  templates:
+    # TODO: use snapshot images and cache.
+    - name: docker-kaniko-build
+      inputs:
+        parameters:
+          # - name: git-repo-url
+          # - name: git-revision
+          #   value: main # Default
+          # - name: git-secret-name
+          # - name: git-secret-key
+          #   value: "ssh" # Default value
+          #   value: "git-secret" # Default value
+          # - name: git-clone-path
+          #   value: "/workdir/src" # Default value
+          - name: image-repository-path
+          - name: image-tag
+          - name: dockerfile
+            value: "dockerfile" # Default value
+          - name: docker-context
+            value: "/workdir/src" # Default value
+        # artifacts:
+        #   - name: git-repo
+        #     path: "{{inputs.parameters.git-clone-path}}"
+        #     git:
+        #       repo: "{{inputs.parameters.git-repo-url}}"
+        #       revision: "{{inputs.parameters.git-revision}}"
+        #       sshPrivateKeySecret:
+        #         name: "{{inputs.parameters.git-secret-name}}"
+        #         key: "{{inputs.parameters.git-secret-key}}"
+      container:
+        image: gcr.io/kaniko-project/executor:v1.9.0-debug
+        command: ["/kaniko/executor"]
+        args:
+          [
+            "--dockerfile={{inputs.parameters.dockerfile}}",
+            "--context={{inputs.parameters.docker-context}}",
+            "--destination={{inputs.parameters.image-repository-path}}:{{inputs.parameters.image-tag}}",
+            "--digest-file=/tmp/docker-image-digest.txt",
+            "--cache=false", 
+          ]
+        volumeMounts:
+          - name: docker-config
+            mountPath: /kaniko/.docker/config.json
+            subPath: .dockerconfigjson
+          - name: repo-root
+            mountPath: /workdir
+      outputs:
+        parameters:
+        - name: docker-image-digest
+          valueFrom:
+            path: /tmp/docker-image-digest.txt

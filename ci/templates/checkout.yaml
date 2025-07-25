@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: checkout
+spec:
+  templates:
+    - name: checkout
+      inputs:
+        parameters:
+          - name: git-repo-url
+          - name: git-clone-path
+            value: "/workdir/src" # Default value
+          - name: git-revision
+            value: main # Default value
+          - name: git-secret-name
+            value: "git-secret" # Default value
+          - name: git-secret-key
+            value: "ssh" # Default value
+        artifacts:
+          - name: git-repo
+            path: "{{inputs.parameters.git-clone-path}}"
+            git:
+              repo: "{{inputs.parameters.git-repo-url}}"
+              revision: "{{inputs.parameters.git-revision}}"
+              sshPrivateKeySecret:
+                name: "{{inputs.parameters.git-secret-name}}"
+                key: "{{inputs.parameters.git-secret-key}}"
+      container:
+        image: alpine/git
+        command: [sh, -c]
+        args: ["cd {{inputs.parameters.git-clone-path}} && git rev-parse --short HEAD > /tmp/git_commit_short_sha"]
+        volumeMounts:
+          - name: repo-root
+            mountPath: /workdir
+      outputs:
+        parameters:
+        - name: git-commit-short-sha
+          valueFrom:
+            path: /tmp/git_commit_short_sha
