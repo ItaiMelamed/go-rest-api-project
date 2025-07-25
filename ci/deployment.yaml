@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: golang-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: golang-api
+  template:
+    metadata:
+      labels:
+        app: golang-api
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: api
+          # image: ghcr.io/itaimelamed/golang-gin-api@sha256:ba7f17b1ad150ff4815bc3fcebb5cb547e15699fb7670a22cd7cd57e126ba23c
+          image: ${API_IMAGE_NAME}@${API_IMAGE_DIGEST}
+          ports:
+            - containerPort: 8080
+          resources: {}
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+      imagePullSecrets:
+        - name: ghcr-cred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: golang-api-service
+spec:
+  selector:
+    app: golang-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: golang-api-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: my-app.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: golang-api-service
+                port:
+                  number: 80

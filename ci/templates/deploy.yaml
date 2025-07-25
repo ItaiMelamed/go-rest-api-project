@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: deploy
+spec:
+  templates:
+    - name: deploy-using-k8s-file
+      inputs:
+        parameters:
+          - name: docker-image-name
+          - name: docker-image-digest
+          - name: project-root
+            value: "/workdir"
+          - name: deployment-file-path
+            value: deployment.yaml # Default value
+      container:
+        image: bitnami/kubectl:latest
+        command: [sh, -c]
+        args: 
+        - |
+          echo "Running Envsubst"
+          envsubst < "{{inputs.parameters.deployment-file-path}}" > /tmp/deployment.yaml
+          echo "Applying deployment.yaml"
+          kubectl apply -f /tmp/deployment.yaml
+
+        env:
+          - name: API_IMAGE_NAME
+            value: "{{inputs.parameters.docker-image-name}}"
+          - name: API_IMAGE_DIGEST
+            value: "{{inputs.parameters.docker-image-digest}}"
+        volumeMounts:
+          - name: docker-config
+            mountPath: /kaniko/.docker/config.json
+            subPath: .dockerconfigjson
+          - name: repo-root
+            mountPath: /workdir
+
+      outputs:
+        parameters:
+        - name: applied-deployment
+          valueFrom:
+            path: /tmp/deployment.yaml

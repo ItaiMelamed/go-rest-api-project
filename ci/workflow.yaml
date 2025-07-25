@@ -31,6 +31,10 @@ spec:
         value: "/workdir/src"
       - name: docker-image-path
         value: ghcr.io/itaimelamed/golang-gin-api
+      - name: project-root
+        value: "/workdir"
+      - name: deployment-file-path
+        value: ci/deployment.yaml
   entrypoint: cicd
   templates:
     - name: cicd
@@ -63,4 +67,17 @@ spec:
                 - name: docker-context
                   value: "{{workflow.parameters.git-clone-path}}"
 
-
+        - - name: deploy
+            templateRef:
+              name: deploy
+              template: deploy-using-k8s-file
+            arguments:
+              parameters:
+                - name: docker-image-name
+                  value: "{{workflow.parameters.docker-image-path}}"
+                - name: docker-image-digest
+                  value: "{{steps.kaniko-build.outputs.parameters.docker-image-digest}}"
+                - name: project-root
+                  value: "/workdir"
+                - name: deployment-file-path
+                  value: deployment.yaml # Default value

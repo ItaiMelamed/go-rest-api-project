@@ -8,30 +8,12 @@ spec:
     - name: docker-kaniko-build
       inputs:
         parameters:
-          # - name: git-repo-url
-          # - name: git-revision
-          #   value: main # Default
-          # - name: git-secret-name
-          # - name: git-secret-key
-          #   value: "ssh" # Default value
-          #   value: "git-secret" # Default value
-          # - name: git-clone-path
-          #   value: "/workdir/src" # Default value
           - name: image-repository-path
           - name: image-tag
           - name: dockerfile
             value: "dockerfile" # Default value
           - name: docker-context
             value: "/workdir/src" # Default value
-        # artifacts:
-        #   - name: git-repo
-        #     path: "{{inputs.parameters.git-clone-path}}"
-        #     git:
-        #       repo: "{{inputs.parameters.git-repo-url}}"
-        #       revision: "{{inputs.parameters.git-revision}}"
-        #       sshPrivateKeySecret:
-        #         name: "{{inputs.parameters.git-secret-name}}"
-        #         key: "{{inputs.parameters.git-secret-key}}"
       container:
         image: gcr.io/kaniko-project/executor:v1.9.0-debug
         command: ["/kaniko/executor"]
