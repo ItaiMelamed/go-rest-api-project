@@ -8,17 +8,17 @@ spec:
       inputs:
         parameters:
           - name: git-repo-url
-          - name: clone-path
+          - name: git-clone-path
             value: "/workdir/src" # Default value
           - name: git-revision
-            value: main
+            value: main # Default value
           - name: git-secret-name
             value: "git-secret" # Default value
           - name: git-secret-key
             value: "ssh" # Default value
         artifacts:
           - name: git-repo
-            path: "{{inputs.parameters.clone-path}}"
+            path: "{{inputs.parameters.git-clone-path}}"
             git:
               repo: "{{inputs.parameters.git-repo-url}}"
               revision: "{{inputs.parameters.git-revision}}"
@@ -28,7 +28,7 @@ spec:
       container:
         image: alpine/git
         command: [sh, -c]
-        args: ["cd {{inputs.parameters.clone-path}} && git rev-parse --short HEAD > /tmp/git_commit_short_sha"]
+        args: ["cd {{inputs.parameters.git-clone-path}} && git rev-parse --short HEAD > /tmp/git_commit_short_sha"]
         volumeMounts:
           - name: repo-root
             mountPath: /workdir

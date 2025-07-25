@@ -25,10 +25,12 @@ spec:
     parameters:
       - name: git-repo-url
         value: git@github.com:ItaiMelamed/go-rest-api-project.git
-      - name: revision
-        value: main
+      - name: git-revision
+        value: dev
+      - name: git-clone-path
+        value: "/workdir/src"
       - name: docker-image-path
-        value: ghcr.io/ItaiMelamed/golang-gin-api
+        value: ghcr.io/itaimelamed/golang-gin-api
   entrypoint: cicd
   templates:
     - name: cicd
@@ -41,8 +43,10 @@ spec:
               parameters:
                 - name: git-repo-url
                   value: "{{workflow.parameters.git-repo-url}}"
+                - name: git-revision
+                  value: "{{workflow.parameters.git-revision}}"
                 - name: clone-path
-                  value: "/workdir/src"
+                  value: "{{workflow.parameters.git-clone-path}}"
                 - name: git-secret-name
                   value: "git-creds"
 
@@ -52,14 +56,11 @@ spec:
               template: docker-kaniko-build
             arguments:
               parameters:
-                - name: git-repo-url
-                  value: "{{workflow.parameters.git-repo-url}}"
-                - name: clone-path
-                  value: "/workdir/src"
-                - name: git-secret-name
-                  value: "git-creds"
                 - name: image-repository-path
                   value: "{{workflow.parameters.docker-image-path}}"
                 - name: image-tag
                   value: "{{steps.checkout.outputs.parameters.git-commit-short-sha}}"
+                - name: docker-context
+                  value: "{{workflow.parameters.git-clone-path}}"
+
 

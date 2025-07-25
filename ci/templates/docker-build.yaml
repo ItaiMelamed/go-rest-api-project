@@ -11,21 +11,21 @@ spec:
           # - name: git-repo-url
           # - name: git-revision
           #   value: main # Default
+          # - name: git-secret-name
+          # - name: git-secret-key
+          #   value: "ssh" # Default value
+          #   value: "git-secret" # Default value
+          # - name: git-clone-path
+          #   value: "/workdir/src" # Default value
           - name: image-repository-path
           - name: image-tag
-          - name: clone-path
-            value: "/workdir/src" # Default value
-          - name: git-secret-name
-            value: "git-secret" # Default value
-          - name: git-secret-key
-            value: "ssh" # Default value
           - name: dockerfile
             value: "dockerfile" # Default value
           - name: docker-context
             value: "/workdir/src" # Default value
         # artifacts:
         #   - name: git-repo
-        #     path: "{{inputs.parameters.clone-path}}"
+        #     path: "{{inputs.parameters.git-clone-path}}"
         #     git:
         #       repo: "{{inputs.parameters.git-repo-url}}"
         #       revision: "{{inputs.parameters.git-revision}}"
@@ -45,9 +45,10 @@ spec:
           ]
         volumeMounts:
           - name: docker-config
-            mountPath: /kaniko/.docker/
+            mountPath: /kaniko/.docker/config.json
+            subPath: .dockerconfigjson
           - name: repo-root
-            mountPath: /workdir/src
+            mountPath: /workdir
       outputs:
         parameters:
         - name: docker-image-digest
