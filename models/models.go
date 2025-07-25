@@ -34,6 +34,7 @@ type Task struct {
 
 var Users = []User{
 	{ID: 1, Username: "some_guy", FullName: "Guy Bernfeld"},
+	{ID: 6, Username: "other_guy", FullName: "Yogev Gabay"},
 	{ID: 2, Username: "jane_doe", FullName: "Jane Doe"},
 	{ID: 3, Username: "john_smith", FullName: "John Smith"},
 	{ID: 4, Username: "alice_wonder", FullName: "Alice Wonderland"},
