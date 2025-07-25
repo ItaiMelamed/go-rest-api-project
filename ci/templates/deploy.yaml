@@ -10,7 +10,7 @@ spec:
           - name: docker-image-name
           - name: docker-image-digest
           - name: project-root
-            value: "/workdir"
+            value: "/workdir" # Default value
           - name: deployment-file-path
             value: deployment.yaml # Default value
       container:
@@ -18,11 +18,9 @@ spec:
         command: [sh, -c]
         args: 
         - |
-          echo "Running Envsubst"
+          cd "{{inputs.parameters.project-root}}"
           envsubst < "{{inputs.parameters.deployment-file-path}}" > /tmp/deployment.yaml
-          echo "Applying deployment.yaml"
           kubectl apply -f /tmp/deployment.yaml
-
         env:
           - name: API_IMAGE_NAME
             value: "{{inputs.parameters.docker-image-name}}"
@@ -34,7 +32,7 @@ spec:
             subPath: .dockerconfigjson
           - name: repo-root
             mountPath: /workdir
-
+      serviceAccountName: argo-deployer
       outputs:
         parameters:
         - name: applied-deployment

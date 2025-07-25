@@ -78,6 +78,6 @@ spec:
                 - name: docker-image-digest
                   value: "{{steps.kaniko-build.outputs.parameters.docker-image-digest}}"
                 - name: project-root
-                  value: "/workdir"
+                  value: "/workdir/src"
                 - name: deployment-file-path
-                  value: deployment.yaml # Default value
+                  value: ci/deployment.yaml
