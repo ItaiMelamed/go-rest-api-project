@@ -1,0 +1,65 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: go-api-integration-
+  labels:
+    workflows.argoproj.io/archive-strategy: "false"
+  annotations:
+    workflows.argoproj.io/description: |
+      Test and Build my golang API 
+spec:
+  serviceAccountName: argo-workflows-sa
+  volumeClaimTemplates:
+    - metadata:
+        name: repo-root
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+  volumes:
+    - name: docker-config
+      secret:
+        secretName: ghcr-cred
+  arguments:
+    parameters:
+      - name: git-repo-url
+        value: git@github.com:ItaiMelamed/go-rest-api-project.git
+      - name: revision
+        value: main
+      - name: docker-image-path
+        value: ghcr.io/ItaiMelamed/golang-gin-api
+  entrypoint: cicd
+  templates:
+    - name: cicd
+      steps:
+        - - name: checkout
+            templateRef:
+              name: checkout
+              template: checkout
+            arguments:
+              parameters:
+                - name: git-repo-url
+                  value: "{{workflow.parameters.git-repo-url}}"
+                - name: clone-path
+                  value: "/workdir/src"
+                - name: git-secret-name
+                  value: "git-creds"
+
+        - - name: kaniko-build
+            templateRef:
+              name: docker-build
+              template: docker-kaniko-build
+            arguments:
+              parameters:
+                - name: git-repo-url
+                  value: "{{workflow.parameters.git-repo-url}}"
+                - name: clone-path
+                  value: "/workdir/src"
+                - name: git-secret-name
+                  value: "git-creds"
+                - name: image-repository-path
+                  value: "{{workflow.parameters.docker-image-path}}"
+                - name: image-tag
+                  value: "{{steps.checkout.outputs.parameters.git-commit-short-sha}}"
+
